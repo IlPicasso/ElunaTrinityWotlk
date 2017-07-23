@@ -1224,8 +1224,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetImmuneToNPC(bool apply, bool keepCombat);
         virtual void SetImmuneToNPC(bool apply) { SetImmuneToNPC(apply, false); }
 
-        bool IsInCombat()  const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT); }
-        bool IsPetInCombat() const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT); }
+        bool IsInCombat() const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT); }
         bool IsInCombatWith(Unit const* who) const { return who && m_combatManager.IsInCombatWith(who); }
         void SetInCombatWith(Unit* enemy) { m_combatManager.SetInCombatWith(enemy); }
         void ClearInCombat() { m_combatManager.EndAllCombat(); }
