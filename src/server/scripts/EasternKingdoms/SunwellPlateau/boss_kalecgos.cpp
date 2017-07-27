@@ -301,14 +301,13 @@ public:
 
                 if (SpectralBlastTimer <= diff)
                 {
-                    ThreatContainer::StorageType const& m_threatlist = me->GetThreatManager().getThreatList();
                     std::list<Unit*> targetList;
-                    for (ThreatContainer::StorageType::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+                    for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
                     {
-                        Unit* target = (*itr)->getTarget();
+                        Unit* target = pair.second->GetOther(me);
                         if (target
                                 && target->GetTypeId() == TYPEID_PLAYER
-                                && (!target->GetVictim() || target->GetGUID() != me->EnsureVictim()->GetGUID())
+                                && (!me->GetVictim() || target->GetGUID() != me->EnsureVictim()->GetGUID())
                                 && target->GetPositionZ() > me->GetPositionZ() - 5
                                 && !target->HasAura(AURA_SPECTRAL_EXHAUSTION))
                         {
@@ -647,7 +646,6 @@ public:
             if (Creature* Kalec = me->SummonCreature(NPC_KALECGOS_HUMAN, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
             {
                 KalecGUID = Kalec->GetGUID();
-                me->CombatStart(Kalec);
                 AddThreat(Kalec, 100.0f);
                 Kalec->setActive(true);
             }
@@ -775,13 +773,10 @@ public:
 
             if (ResetThreat <= diff)
             {
-                ThreatContainer::StorageType threatlist = me->GetThreatManager().getThreatList();
-                for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                {
-                    if (Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
-                        if (unit->GetPositionZ() > me->GetPositionZ() + 5)
-                            me->GetThreatManager().ModifyThreatByPercent(unit, -100);
-                }
+                for (ThreatReference* ref : me->GetThreatManager().GetModifiableThreatList())
+                    if (ref->GetVictim()->GetPositionZ() > me->GetPositionZ() + 5)
+                        ref->SetThreat(0.0f);
+
                 ResetThreat = 1000;
             } else ResetThreat -= diff;
 
